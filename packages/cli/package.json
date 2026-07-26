@@ -1,0 +1,17 @@
+{
+  "name": "@truing/cli",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "truing": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@truing/contract": "0.0.0",
+    "commander": "14.0.0"
+  }
+}
