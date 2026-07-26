@@ -57,22 +57,13 @@ The first real validation case comes from a completed Playwright audit of the Sw
 
 ### 1. Discover
 
-An LLM examines the repository, routes, components, tests, design documentation, screenshots, prior audits, and existing conventions.
+An LLM or human examines the repository, routes, components, tests, design documentation, screenshots, prior audits, and existing conventions.
 
-It identifies likely:
-
-- interface targets;
-- important states;
-- responsive breakpoints and transformations;
-- information priorities;
-- accessibility requirements;
-- content stress cases;
-- known exceptions;
-- unresolved product questions.
+The discovery step identifies likely targets, states, responsive transformations, information priorities, accessibility requirements, content stress cases, exceptions, and unresolved questions.
 
 ### 2. Propose
 
-The LLM generates a contract proposal with provenance, assumptions, and questions that need human judgment.
+The result is a contract proposal with provenance, assumptions, and questions requiring human judgment.
 
 Humans should normally review product decisions and contract diffs—not hand-author every YAML field.
 
@@ -97,15 +88,7 @@ The approved contract determines what the resulting observations mean.
 
 ### 5. Reconcile
 
-A failure or change must be resolved explicitly:
-
-- fixed;
-- accepted change;
-- approved exception;
-- false positive;
-- contract correction;
-- deferred debt;
-- blocked pending a product decision.
+A failure or change must be resolved explicitly: fixed, accepted change, approved exception, false positive, contract correction, deferred debt, or blocked pending a product decision.
 
 Exceptions do not erase measurements. Missing analyzers and unsupported browser coverage do not become passes.
 
@@ -125,35 +108,15 @@ The result is a compact delivery record backed by addressable evidence:
 
 Truing does not need one heavyweight browser path for every assertion, and it should not keep an LLM inside routine browser replay.
 
-The browser strategy is:
+### Plain HTTP or an existing API
 
-### 1. Plain HTTP or an existing API
+Use this when JavaScript execution and browser state are unnecessary. No browser claim should be made from this evidence.
 
-Use this when JavaScript execution and browser state are unnecessary.
-
-Examples:
-
-- verify a resource or API response;
-- inspect structured metadata;
-- test a server-side postcondition.
-
-No browser claim should be made from this evidence.
-
-### 2. Lightpanda with PandaScript
+### Lightpanda with PandaScript
 
 Use Lightpanda for fast, DOM-oriented JavaScript execution where visual rendering is not the thing being proved.
 
-Good candidates include:
-
-- semantic target presence;
-- accessible names;
-- simple disclosure or form behavior;
-- structured extraction from JavaScript-rendered pages;
-- capability reachability;
-- recurring nonvisual smoke workflows;
-- normalized JSON results consumed by Truing assertions.
-
-The operating model is:
+Good candidates include semantic target presence, accessible names, simple disclosure or form behavior, structured extraction, capability reachability, and recurring nonvisual smoke workflows.
 
 ```text
 Reason once
@@ -166,138 +129,58 @@ Reason once
 
 A deterministic script does not make a remote website deterministic. Truing must still classify timing, authentication, page-change, and environment failures honestly.
 
-### 3. Playwright or another full browser
+### Playwright or another full browser
 
 Use a real rendering engine whenever the required truth depends on what a user can see or operate.
 
-That includes:
+That includes screenshots, geometry, overflow, clipping, wrapping, responsive breakpoints, fonts, animation, browser zoom, compatibility, and visual review.
 
-- screenshots and visual evidence;
-- element geometry;
-- overflow, clipping, wrapping, and overlap;
-- responsive breakpoints;
-- font and typography behavior;
-- animation and reduced motion;
-- browser zoom;
-- cross-browser compatibility;
-- complex Web APIs;
-- visual review.
+Lightpanda is not the visual-testing authority.
 
-Lightpanda is not the visual-testing authority. The Switchyard overflow, breakpoint, touch-target, wrapping, and screenshot checks remain Playwright work.
-
-### 4. Live agent browsing
+### Live agent browsing
 
 Use live model-guided browsing only when the task is too unfamiliar or unstable to preserve immediately as deterministic automation.
 
 Successful exploration should become a reviewed PandaScript or Playwright scenario whenever the procedure will be repeated.
 
-### One contract, multiple evidence lanes
+A single contract may combine evidence from more than one lane. Every observation must record which backend produced it and what that backend is qualified to prove.
 
-A Truing scenario may combine evidence from both browser lanes:
-
-- Lightpanda can replay semantic and interaction checks quickly;
-- Playwright can run the smaller set of states that require rendering, geometry, screenshots, or compatibility evidence;
-- the receipt records which backend produced every observation and what that backend is qualified to prove.
-
-The execution planner should route each assertion to the lowest-cost backend that can establish it without overstating the evidence.
-
-The detailed policy, security boundary, workflow manifest, receipts, and initial acceptance proof are documented in [`docs/BROWSER_EXECUTION_STRATEGY.md`](docs/BROWSER_EXECUTION_STRATEGY.md).
+See [`docs/BROWSER_EXECUTION_STRATEGY.md`](docs/BROWSER_EXECUTION_STRATEGY.md) for the detailed policy and security boundary.
 
 ## Token and agent economics
 
-Truing is not automatically more efficient than asking an LLM-backed coding agent to inspect a project and run a one-time audit.
+Truing is not automatically cheaper than asking a coding agent to perform a one-time audit.
 
-The initial discovery and authoring pass may cost more because the model must:
-
-- inspect the repository and existing evidence;
-- distinguish durable product intent from implementation detail;
-- propose contracts, scenarios, and browser procedures;
-- surface uncertainty and request human authorization;
-- produce reusable artifacts rather than only a terminal answer.
+The initial discovery and authoring pass may cost more because it produces reusable contracts, workflows, and evidence rules rather than only a terminal answer.
 
 The efficiency gain begins when that knowledge or procedure will be used again.
 
-A typical agent-only loop repeatedly spends tokens on:
-
-```text
-inspect the repository
-  → rediscover the relevant UI structure and breakpoints
-  → reinterpret the requirements
-  → decide what to test
-  → generate browser commands
-  → inspect raw output
-  → recover prior exceptions and decisions
-  → explain whether the result is acceptable
-```
+A typical agent-only loop repeatedly spends tokens on repository inspection, requirement interpretation, browser command generation, raw-output review, prior-exception recovery, and completion judgment.
 
 Truing preserves the stable parts as repository infrastructure:
 
 ```text
 approved contract
 accepted browser workflow
-fixtures and content profiles
+fixtures
 assertion definitions
-exception records
 release policy
 evidence and receipt schemas
 ```
 
-After that setup, a passing verification run should require **zero LLM tokens**. HTTP checks, PandaScripts, Playwright scenarios, assertions, and receipt generation run deterministically.
-
-When a run fails, the model should receive bounded evidence instead of the entire repository and a long browser transcript:
-
-```text
-failed assertion
-+ expected contract truth
-+ exact observations
-+ related evidence
-+ relevant source paths
-+ prior reconciliation state
-```
-
-That keeps the LLM focused on novelty: explaining the failure, proposing a fix, or proposing an explicit contract change. The model is not paid to rediscover the entire project before every decision.
-
-### Where Lightpanda improves the economics
-
-Lightpanda/PandaScript reduces both model use and execution cost for qualifying nonvisual checks:
-
-- the browser procedure is preserved once;
-- routine replay contains no LLM call;
-- structured JSON replaces verbose exploratory transcripts;
-- only claims requiring graphical rendering are escalated to Playwright;
-- only genuinely unfamiliar or changing work returns to live agent browsing.
-
-The intended progression is:
-
-```text
-LLM explores
-  → repeated value becomes clear
-  → Truing preserves the intent and procedure
-  → deterministic replay handles future runs
-  → the LLM returns only for novelty, ambiguity, or failure
-```
-
-### When not to formalize a workflow
-
-A direct coding agent remains the better tool when the work is:
-
-- genuinely one-time;
-- exploratory and unlikely to repeat;
-- changing too quickly for a durable contract;
-- too uncertain to authorize yet;
-- cheaper to inspect again than to maintain as project infrastructure.
+After setup, a passing verification run should require **zero LLM tokens**. When a run fails, the model should receive bounded evidence rather than the entire repository and a long browser transcript.
 
 The operating rule is:
 
 > Use Truing when the knowledge should survive the current session. Use direct agent exploration when it should not.
 
-Truing loses its economic advantage if contracts encode incidental DOM details, workflows are regenerated instead of reused, an LLM is invoked on every run, or receipts dump all raw evidence back into model context. Token efficiency is therefore a product requirement and an architectural constraint—not merely a hoped-for side effect.
+Truing loses its economic advantage if contracts mirror incidental DOM details, workflows are regenerated instead of reused, an LLM is invoked on every run, or receipts dump all raw evidence back into model context.
 
 ## Grounded in Clay
 
 Truing is conceptually grounded in the engineering lesson demonstrated by [Clay](https://github.com/nicbarker/clay), the high-performance UI layout library in C.
 
-Clay shows that a domain commonly treated as mysterious can become small and understandable once the correct representation and execution passes are identified. Its layout model separates concerns such as hierarchy, sizing, growth and shrinkage, text wrapping, positioning, and alignment instead of attempting to solve everything at once.
+Clay shows that a domain commonly treated as mysterious can become small and understandable once the correct representation and execution passes are identified. Its layout model separates hierarchy, sizing, growth and shrinkage, text wrapping, positioning, and alignment instead of attempting to solve everything at once.
 
 Truing applies that lesson one level above layout computation.
 
@@ -308,10 +191,10 @@ It does **not** depend on Clay and it is **not** a layout engine. It borrows the
 - separate execution routing from observation;
 - separate deterministic facts from heuristics and model critique;
 - finalize evidence before asking for judgment;
-- use explicit passes to eliminate whole classes of ambiguity;
+- use explicit passes to eliminate ambiguity;
 - keep the core small and compose specialized tools around it.
 
-Where Clay makes it possible to explain why an element received its size and position, Truing aims to make it possible to explain why an implemented interface satisfies—or violates—its intended behavior.
+Where Clay makes it possible to explain why an element received its size and position, Truing aims to explain why an implemented interface satisfies—or violates—its intended behavior.
 
 ## What Truing is not
 
@@ -332,129 +215,51 @@ Playwright, Lightpanda, Storybook, axe-core, visual regression systems, design t
 
 ## Current status
 
-Truing is in **pre-alpha foundation and validation work**.
+Truing is in **pre-alpha planning and validation**.
 
-The repository currently contains:
+The repository currently provides:
 
-- the `truing.dev/v0alpha1` interface-contract format;
-- YAML parsing and schema validation;
+- the `truing.dev/v0alpha1` contract envelope;
+- YAML parsing and minimal schema validation;
 - normalized contract output;
-- deterministic SHA-256 contract fingerprints;
+- deterministic SHA-256 fingerprints;
 - duplicate scenario and assertion checks;
 - the initial `truing contract check` CLI workflow;
-- a dense diagnostic event-detail example;
-- a Switchyard homepage contract derived from a real responsive audit;
-- product, architecture, browser-strategy, MVP, and validation documentation.
+- two illustrative contract examples;
+- product, architecture, browser-strategy, and validation documentation.
 
-It does **not** yet execute browser scenarios or generate design receipts. The repository is intentionally establishing the stable contract and execution boundaries before adding those systems.
+It does **not** yet execute browser scenarios, evaluate interface assertions, or generate design receipts.
 
-## Development path
+The examples contain proposed semantics that the current permissive schema does not fully validate. A successful contract check currently proves that the minimal envelope is valid and fingerprintable—not that the full example is executable.
 
-Development is organized around proofs, not a broad platform build.
+## Active development boundary
 
-### Milestone 1 — Contract spine
+The repository is in **Phase 0: planning and owner approval**.
 
-**Purpose:** establish the durable representation before browser automation.
+No product implementation is authorized until the owner accepts or replaces the proposed initial-release decision in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 
-Current work:
+The proposed initial release is deliberately small:
 
-- validate and normalize interface contracts;
-- fingerprint approved intent;
-- keep the format readable by humans and reliable for machines;
-- prove that multiple real examples fit the same core model.
+```text
+one approved contract
+  → one bundled local fixture
+  → Lightpanda for two nonvisual assertions
+  → Playwright for one rendered assertion
+  → structured findings and evidence
+  → JSON and Markdown receipt
+  → deterministic exit status
+```
 
-**Exit proof:** contracts are understandable, deterministic, versionable, and consumable by CI.
+The real Switchyard integration, contract generation, broad assertion catalog, breakpoint matrices, hosted services, and human-review workflows are deferred.
 
-### Milestone 2 — Browser routing and deterministic replay
+Use these documents before implementation:
 
-**Purpose:** establish the browser execution boundary before building visual verification on top of it.
+1. [`docs/PROJECT_STATE.md`](docs/PROJECT_STATE.md) — what is real, proposed, undefined, or conflicting;
+2. [`docs/MVP.md`](docs/MVP.md) — authoritative scope, phases, acceptance criteria, stopping points, and backlog;
+3. [`docs/DECISIONS.md`](docs/DECISIONS.md) — decisions, rejected alternatives, assumptions, open questions, and risks;
+4. [`AGENTS.md`](AGENTS.md) — mandatory coding-agent rules.
 
-Required implementation:
-
-- explicit routing between HTTP, Lightpanda/PandaScript, Playwright/full browser, and live exploration;
-- a pinned external Lightpanda adapter;
-- repository-owned PandaScripts and policy manifests;
-- origin allowlists, side-effect classification, secret-name declarations, timeout, and output bounds;
-- structured JSON-compatible completion values;
-- postcondition validation;
-- model-free routine replay;
-- immutable browser execution receipts;
-- a local JavaScript fixture with positive and negative paths;
-- ten consistent Lightpanda replays with zero LLM calls.
-
-**Exit proof:** Truing can preserve one successful browser procedure, replay it safely without a model, validate its postconditions, and report a receipt without making any visual claim.
-
-### Milestone 3 — Switchyard rendered-browser pilot
-
-**Purpose:** convert a completed manual Playwright audit into an executable Truing run.
-
-The pilot must reproduce six known failures:
-
-1. header overflow at 320 pixels;
-2. brittle forced-nowrap hero content;
-3. an undersized mobile-menu target;
-4. unnamed theme controls;
-5. long receipt identifiers overflowing;
-6. long destination names cramping a receipt row.
-
-Required implementation:
-
-- Playwright scenario runner;
-- representative viewports and breakpoint-neighborhood probes;
-- DOM and geometry observations;
-- horizontal-overflow, clipping, overlap, target-size, accessible-name, and interaction assertions;
-- hostile-content scenarios;
-- screenshot and trace evidence;
-- optional Lightpanda execution for qualifying semantic or smoke assertions;
-- explicit backend attribution in evidence.
-
-**Exit proof:** Truing routes each assertion to an honest browser lane, detects the seeded failures, verifies the corrections, and reports the limits of browser and analyzer coverage.
-
-### Milestone 4 — Findings, reconciliation, and receipts
-
-**Purpose:** turn raw browser output into defensible delivery evidence.
-
-Required implementation:
-
-- structured findings with severity and confidence;
-- content-addressed evidence manifests;
-- explicit `not_run`, `blocked`, and initialization-failure states;
-- accepted-change and exception records;
-- scoped human review;
-- Markdown and JSON design receipts;
-- CI release policy.
-
-**Exit proof:** a pull request can move from implementation change to evidence, review, reconciliation, and a machine-readable delivery decision.
-
-### Milestone 5 — Agent-assisted contract and workflow authoring
-
-**Purpose:** make contracts and repeatable browser procedures infrastructure rather than paperwork.
-
-Required implementation:
-
-- repository and audit discovery;
-- generated contract proposals;
-- generated PandaScript or Playwright scenario proposals;
-- source provenance;
-- confidence and unresolved-question reporting;
-- contract and workflow diff review;
-- explicit human authorization;
-- safeguards against self-approval and failure-driven weakening;
-- bounded repair followed by deterministic replay.
-
-**Exit proof:** an LLM can derive a useful contract and browser-workflow proposal from the Switchyard repository and audit, while deterministic verification remains fully usable without a model.
-
-### Milestone 6 — Second product-intent proof
-
-**Purpose:** prove that Truing captures more than responsive mechanics.
-
-The event-detail pilot will verify that critical diagnostic truth remains visible, correctly ordered, labeled, and actionable across failure states and responsive transformations.
-
-**Exit proof:** Truing catches a product-intent failure that a technically valid DOM, passing interaction test, and plausible screenshot would not explain by themselves.
-
-Only after these proofs should the project expand toward Storybook, Figma, design-system, hosted review, managed browser, or organization-policy integrations.
-
-See [`docs/MVP.md`](docs/MVP.md) for the detailed vertical slice, [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for package and authority boundaries, and [`docs/BROWSER_EXECUTION_STRATEGY.md`](docs/BROWSER_EXECUTION_STRATEGY.md) for execution routing.
+Broader product and architecture documents are directional references. They do not silently add work to the active release.
 
 ## Quick start
 
@@ -482,15 +287,17 @@ packages/
   cli/        Initial `truing` command-line interface
 
 examples/
-  event-detail/      Dense diagnostic interface contract
-  switchyard-home/   Contract derived from a real responsive audit
+  event-detail/      Dense diagnostic interface proposal
+  switchyard-home/   Proposal derived from a real responsive audit
 
 docs/
+  PROJECT_STATE.md
+  MVP.md
+  DECISIONS.md
   PRODUCT_DEFINITION.md
   VALIDATION_SWITCHYARD.md
   BROWSER_EXECUTION_STRATEGY.md
   ARCHITECTURE.md
-  MVP.md
 
 schemas/
   interface-contract.v0alpha1.schema.json
@@ -513,17 +320,9 @@ schemas/
 
 ## Contributing
 
-Truing is early enough that the highest-value contributions are still corrections to the model:
+The highest-value contributions now are corrections to the product model, active scope, evidence authority, or acceptance criteria.
 
-- real interface failures that existing tools detected but did not explain;
-- audits that contain durable product intent trapped in prose;
-- repeatable browser procedures currently lost in model sessions;
-- browser tasks routed to the wrong execution tier;
-- contract vocabulary that is too brittle, vague, or implementation-specific;
-- scenarios where automation and human judgment need a clearer boundary;
-- evidence or exception workflows that would become burdensome in real teams.
-
-The project is not yet accepting broad feature implementation without prior alignment. See [`CONTRIBUTING.md`](CONTRIBUTING.md).
+The project is not accepting broad feature implementation without prior alignment. See [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## License
 
