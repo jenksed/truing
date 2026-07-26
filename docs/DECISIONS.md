@@ -63,6 +63,8 @@ Every observation must identify the backend that produced it and the limits of t
 
 **Reason:** The contract core and CLI already exist in this stack. Changing it before the first vertical proof would add migration cost without validated benefit.
 
+**Detail:** See [`TECHNOLOGY_STRATEGY.md`](TECHNOLOGY_STRATEGY.md).
+
 ### D-008 — No premature generalized browser abstraction
 
 **State:** accepted  
@@ -72,6 +74,24 @@ Every observation must identify the backend that produced it and the limits of t
 
 **State:** accepted  
 **Decision:** Fields in `examples/` do not become implemented requirements merely because the permissive schema accepts them. A field becomes executable only when the active release plan names it, validates it, and provides acceptance tests.
+
+### D-012 — Native language and Clay strategy
+
+**State:** accepted for IR-1  
+**Decision:**
+
+- keep TypeScript as the IR-1 implementation and orchestration language;
+- treat Clay as architectural grounding, not an IR-1 executable dependency;
+- do not add C, Zig, Rust, WebAssembly, FFI, Node-API, or native build tooling during IR-1 without a separate accepted task;
+- prefer Rust for a future general-purpose native Truing core;
+- prefer Zig when direct Clay or Lightpanda systems integration is the dominant requirement;
+- use C only for a tightly bounded Clay-specific module rather than the full project;
+- prefer a WebAssembly module or standalone native process before an in-process native addon;
+- require measured or accepted product evidence before a native spike or migration.
+
+**Reason:** IR-1 is dominated by structured data, browser orchestration, process coordination, and receipt generation. No native performance bottleneck or direct Clay layout requirement has been demonstrated.
+
+**Revisit only when:** one of the triggers in [`TECHNOLOGY_STRATEGY.md`](TECHNOLOGY_STRATEGY.md) is supported by evidence and the owner approves a bounded plan.
 
 ---
 
@@ -141,6 +161,13 @@ Every observation must identify the backend that produced it and the limits of t
 
 **State:** rejected  
 **Reason:** The schema should validate only semantics implemented and exercised by the active release.
+
+### R-ALT-005 — Rewrite IR-1 in C, Zig, or Rust because Clay is written in C
+
+**State:** rejected for IR-1  
+**Reason:** Clay currently supplies a design method, not a required runtime capability. Rewriting would add toolchain, packaging, FFI, and browser-integration cost without solving a measured bottleneck or accepted product requirement.
+
+**May be reconsidered when:** a trigger in `TECHNOLOGY_STRATEGY.md` is demonstrated and a bounded owner-approved spike is defined.
 
 ---
 
@@ -226,6 +253,22 @@ CI proves Linux. Local macOS support is desirable but not yet an accepted requir
 **State:** open but strongly supported by current evidence  
 **Default:** yes, unless IR-1 invalidates the current model.
 
+### Q-007 — Does Truing need a native core after IR-1?
+
+**State:** open; no native work authorized  
+**Default:** no, until evidence demonstrates otherwise.
+
+Revisit only with:
+
+- a measured compute or memory bottleneck;
+- an accepted single-binary distribution requirement;
+- an accepted feature requiring Truing-owned layout computation;
+- a demonstrated need for direct Lightpanda embedding;
+- a large-scale evidence-processing requirement;
+- or a documented hardened native security boundary.
+
+A proposal must compare a native approach against optimizing or packaging the existing TypeScript implementation.
+
 ---
 
 ## Risks
@@ -265,3 +308,9 @@ CI proves Linux. Local macOS support is desirable but not yet an accepted requir
 **Risk:** breakpoint matrices, hostile content, exceptions, accessibility engines, and real-site integration enter IR-1 silently.
 
 **Control:** those items are deferred in `MVP.md` and require a scope proposal plus owner approval.
+
+### R-007 — Premature native rewrite obscures product validation
+
+**Risk:** C, Zig, Rust, WebAssembly, or FFI work consumes the first release before Truing proves contract-to-receipt value.
+
+**Control:** TypeScript is fixed for IR-1; native work requires a documented trigger, benchmark or accepted requirement, bounded spike, plan update, and owner approval.
