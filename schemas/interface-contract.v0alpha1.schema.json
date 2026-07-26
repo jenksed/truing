@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://truing.dev/schemas/interface-contract.v0alpha1.schema.json",
+  "title": "Truing Interface Contract v0alpha1",
+  "type": "object",
+  "required": ["version", "kind", "metadata", "target", "scenarios", "assertions"],
+  "properties": {
+    "version": { "const": "truing.dev/v0alpha1" },
+    "kind": { "const": "InterfaceContract" },
+    "metadata": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "owner": { "type": "string", "minLength": 1 },
+        "risk": { "enum": ["low", "medium", "high", "critical"] },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "target": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "enum": ["route", "component", "dialog", "workflow", "custom"] },
+        "route": { "type": "string", "minLength": 1 },
+        "root": { "type": "string", "minLength": 1 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "route" } } },
+          "then": { "required": ["route"] }
+        }
+      ],
+      "additionalProperties": true
+    },
+    "viewports": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["width", "height"],
+        "properties": {
+          "width": { "type": "integer", "minimum": 1 },
+          "height": { "type": "integer", "minimum": 1 },
+          "device_scale_factor": { "type": "number", "exclusiveMinimum": 0 }
+        },
+        "additionalProperties": true
+      }
+    },
+    "scenarios": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "fixture": { "type": "string", "minLength": 1 },
+          "auth": { "type": "string", "minLength": 1 },
+          "content_profile": { "type": "string", "minLength": 1 },
+          "steps": { "type": "array", "items": { "type": "object" } }
+        },
+        "additionalProperties": true
+      }
+    },
+    "regions": { "type": "object" },
+    "assertions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "use"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "use": { "type": "string", "minLength": 1 },
+          "severity": {
+            "enum": ["informational", "low", "medium", "high", "critical"]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "human_review": {},
+    "release": {}
+  },
+  "additionalProperties": true
+}
