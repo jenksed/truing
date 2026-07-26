@@ -203,6 +203,96 @@ The execution planner should route each assertion to the lowest-cost backend tha
 
 The detailed policy, security boundary, workflow manifest, receipts, and initial acceptance proof are documented in [`docs/BROWSER_EXECUTION_STRATEGY.md`](docs/BROWSER_EXECUTION_STRATEGY.md).
 
+## Token and agent economics
+
+Truing is not automatically more efficient than asking an LLM-backed coding agent to inspect a project and run a one-time audit.
+
+The initial discovery and authoring pass may cost more because the model must:
+
+- inspect the repository and existing evidence;
+- distinguish durable product intent from implementation detail;
+- propose contracts, scenarios, and browser procedures;
+- surface uncertainty and request human authorization;
+- produce reusable artifacts rather than only a terminal answer.
+
+The efficiency gain begins when that knowledge or procedure will be used again.
+
+A typical agent-only loop repeatedly spends tokens on:
+
+```text
+inspect the repository
+  → rediscover the relevant UI structure and breakpoints
+  → reinterpret the requirements
+  → decide what to test
+  → generate browser commands
+  → inspect raw output
+  → recover prior exceptions and decisions
+  → explain whether the result is acceptable
+```
+
+Truing preserves the stable parts as repository infrastructure:
+
+```text
+approved contract
+accepted browser workflow
+fixtures and content profiles
+assertion definitions
+exception records
+release policy
+evidence and receipt schemas
+```
+
+After that setup, a passing verification run should require **zero LLM tokens**. HTTP checks, PandaScripts, Playwright scenarios, assertions, and receipt generation run deterministically.
+
+When a run fails, the model should receive bounded evidence instead of the entire repository and a long browser transcript:
+
+```text
+failed assertion
++ expected contract truth
++ exact observations
++ related evidence
++ relevant source paths
++ prior reconciliation state
+```
+
+That keeps the LLM focused on novelty: explaining the failure, proposing a fix, or proposing an explicit contract change. The model is not paid to rediscover the entire project before every decision.
+
+### Where Lightpanda improves the economics
+
+Lightpanda/PandaScript reduces both model use and execution cost for qualifying nonvisual checks:
+
+- the browser procedure is preserved once;
+- routine replay contains no LLM call;
+- structured JSON replaces verbose exploratory transcripts;
+- only claims requiring graphical rendering are escalated to Playwright;
+- only genuinely unfamiliar or changing work returns to live agent browsing.
+
+The intended progression is:
+
+```text
+LLM explores
+  → repeated value becomes clear
+  → Truing preserves the intent and procedure
+  → deterministic replay handles future runs
+  → the LLM returns only for novelty, ambiguity, or failure
+```
+
+### When not to formalize a workflow
+
+A direct coding agent remains the better tool when the work is:
+
+- genuinely one-time;
+- exploratory and unlikely to repeat;
+- changing too quickly for a durable contract;
+- too uncertain to authorize yet;
+- cheaper to inspect again than to maintain as project infrastructure.
+
+The operating rule is:
+
+> Use Truing when the knowledge should survive the current session. Use direct agent exploration when it should not.
+
+Truing loses its economic advantage if contracts encode incidental DOM details, workflows are regenerated instead of reused, an LLM is invoked on every run, or receipts dump all raw evidence back into model context. Token efficiency is therefore a product requirement and an architectural constraint—not merely a hoped-for side effect.
+
 ## Grounded in Clay
 
 Truing is conceptually grounded in the engineering lesson demonstrated by [Clay](https://github.com/nicbarker/clay), the high-performance UI layout library in C.
