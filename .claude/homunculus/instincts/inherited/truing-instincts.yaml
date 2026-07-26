@@ -1,0 +1,434 @@
+# Instincts generated from https://github.com/jenksed/truing
+# Generated: 2026-07-26T18:36:28.308Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: truing-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/jenksed/truing
+---
+
+# Truing Commit Length
+
+## Action
+
+Keep commit messages concise (~23 characters)
+
+## Evidence
+
+- Average commit message length: 23 chars
+- Based on 19 commits
+
+---
+id: truing-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/jenksed/truing
+---
+
+# Truing Naming Files
+
+## Action
+
+Use camelCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: camelCase
+
+---
+id: truing-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/jenksed/truing
+---
+
+# Truing Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: truing-workflow-feature-development
+trigger: "when implementing a new feature"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/jenksed/truing
+---
+
+# Truing Workflow Feature Development
+
+## Action
+
+Follow the feature-development workflow:
+1. Add feature implementation
+2. Add tests for feature
+3. Update documentation
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~22x per month
+- Files: packages/contract/src/*, packages/cli/src/*
+
+---
+id: truing-workflow-add-new-package
+trigger: "when doing add new package"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/jenksed/truing
+---
+
+# Truing Workflow Add New Package
+
+## Action
+
+Follow the add-new-package workflow:
+1. Create package directory under packages/
+2. Add package.json to the new package directory
+3. Add tsconfig.json to the new package directory
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: packages/*/package.json, packages/*/tsconfig.json
+
+---
+id: truing-workflow-implement-and-test-feature-in-package
+trigger: "when doing implement and test feature in package"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/jenksed/truing
+---
+
+# Truing Workflow Implement And Test Feature In Package
+
+## Action
+
+Follow the implement-and-test-feature-in-package workflow:
+1. Implement feature in src/ of the package
+2. Add or update test in test/ of the package
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: packages/*/src/*.ts, packages/*/test/*.test.ts
+
+---
+id: truing-workflow-add-documentation-file
+trigger: "when doing add documentation file"
+confidence: 0.65
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/jenksed/truing
+---
+
+# Truing Workflow Add Documentation File
+
+## Action
+
+Follow the add-documentation-file workflow:
+1. Create new markdown file in docs/
+2. Write documentation content
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~3x per month
+- Files: docs/*.md
+
+---
+id: truing-instinct-camelcase-files
+trigger: "When creating or renaming a file in the codebase"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: jenksed/truing
+---
+
+# Truing Instinct Camelcase Files
+
+## Action
+
+Name the file using camelCase
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.files
+- Observed in packages/cli/src/*
+
+---
+id: truing-instinct-camelcase-functions
+trigger: "When defining a function"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: jenksed/truing
+---
+
+# Truing Instinct Camelcase Functions
+
+## Action
+
+Name the function using camelCase
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.functions
+
+---
+id: truing-instinct-pascalcase-classes
+trigger: "When defining a class"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: jenksed/truing
+---
+
+# Truing Instinct Pascalcase Classes
+
+## Action
+
+Name the class using PascalCase
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.classes
+
+---
+id: truing-instinct-screaming-constants
+trigger: "When defining a constant"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: jenksed/truing
+---
+
+# Truing Instinct Screaming Constants
+
+## Action
+
+Name the constant using SCREAMING_SNAKE_CASE
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.constants
+
+---
+id: truing-instinct-absolute-imports
+trigger: "When importing modules"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: jenksed/truing
+---
+
+# Truing Instinct Absolute Imports
+
+## Action
+
+Use absolute import paths
+
+## Evidence
+
+- Pattern in codeStyle.importStyle
+
+---
+id: truing-instinct-named-exports
+trigger: "When exporting modules or functions"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: jenksed/truing
+---
+
+# Truing Instinct Named Exports
+
+## Action
+
+Use named exports
+
+## Evidence
+
+- Pattern in codeStyle.exportStyle
+
+---
+id: truing-instinct-test-location-mixed
+trigger: "When adding tests to a package"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: jenksed/truing
+---
+
+# Truing Instinct Test Location Mixed
+
+## Action
+
+Place tests in test/ directories inside the package
+
+## Evidence
+
+- Pattern in architecture.folderStructure.testLocation
+- Seen in packages/*/test/*.test.ts
+
+---
+id: truing-instinct-feature-test-pair
+trigger: "When implementing a new feature in a package"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: jenksed/truing
+---
+
+# Truing Instinct Feature Test Pair
+
+## Action
+
+Add or update a corresponding test in the package's test/ directory
+
+## Evidence
+
+- Workflow implement-and-test-feature-in-package
+- Commit sequence: Implement feature → Add or update test
+
+---
+id: truing-instinct-try-catch-errors
+trigger: "When handling errors in code"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: jenksed/truing
+---
+
+# Truing Instinct Try Catch Errors
+
+## Action
+
+Use try-catch blocks for error handling
+
+## Evidence
+
+- Pattern in errorHandling.style
+
+---
+id: truing-instinct-atomic-commits
+trigger: "When making a commit"
+confidence: 0.8
+domain: git
+source: repo-analysis
+source_repo: jenksed/truing
+---
+
+# Truing Instinct Atomic Commits
+
+## Action
+
+Make each commit atomic, representing a single logical change
+
+## Evidence
+
+- Pattern in commits (short, focused messages)
+- Examples: 'Add workspace foundation', 'Add TypeScript configuration'
+
+---
+id: truing-instinct-freeform-commit-messages
+trigger: "When writing a commit message"
+confidence: 0.8
+domain: git
+source: repo-analysis
+source_repo: jenksed/truing
+---
+
+# Truing Instinct Freeform Commit Messages
+
+## Action
+
+Use a concise, freeform message describing the change (no enforced prefix)
+
+## Evidence
+
+- Pattern in commits.type: freeform
+- Examples: 'Add agent guidance', 'Document initial architecture'
+
+---
+id: truing-instinct-add-new-package
+trigger: "When starting a new logical package/module in the monorepo"
+confidence: 0.95
+domain: workflow
+source: repo-analysis
+source_repo: jenksed/truing
+---
+
+# Truing Instinct Add New Package
+
+## Action
+
+Create a new directory under packages/, add package.json and tsconfig.json to it
+
+## Evidence
+
+- Workflow add-new-package
+- Commit sequence: Create package directory → Add package.json → Add tsconfig.json
+
+---
+id: truing-instinct-implement-test-feature
+trigger: "When adding a new feature or functionality to an existing package"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: jenksed/truing
+---
+
+# Truing Instinct Implement Test Feature
+
+## Action
+
+Implement the feature in src/ and add or update a test in test/ of the package
+
+## Evidence
+
+- Workflow implement-and-test-feature-in-package
+- Commit sequence: Implement feature → Add or update test
+
+---
+id: truing-instinct-add-doc-file
+trigger: "When documenting architecture, MVP, or product definition"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: jenksed/truing
+---
+
+# Truing Instinct Add Doc File
+
+## Action
+
+Create a new markdown file in docs/ and write documentation content
+
+## Evidence
+
+- Workflow add-documentation-file
+- Commit sequence: Create new markdown file → Write documentation content
+
