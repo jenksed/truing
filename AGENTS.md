@@ -13,8 +13,9 @@ Before changing code or executable configuration, read in this order:
 1. [`docs/PROJECT_STATE.md`](docs/PROJECT_STATE.md)
 2. [`docs/MVP.md`](docs/MVP.md)
 3. [`docs/DECISIONS.md`](docs/DECISIONS.md)
-4. the relevant existing code, tests, and example contract
-5. supporting long-term documents only as needed
+4. [`docs/TECHNOLOGY_STRATEGY.md`](docs/TECHNOLOGY_STRATEGY.md)
+5. the relevant existing code, tests, and example contract
+6. supporting long-term documents only as needed
 
 Confirm all of the following before implementation:
 
@@ -73,7 +74,7 @@ An agent may decide ordinary local details when they do not change product behav
 - deterministic fixture values;
 - a minimal dependency already anticipated by the active phase.
 
-Reasonable details must remain local to the active task. They do not authorize a framework, package, abstraction, refactor, assertion, backend, or feature not required by acceptance criteria.
+Reasonable details must remain local to the active task. They do not authorize a framework, package, abstraction, refactor, assertion, backend, feature, native language, FFI boundary, or build tool not required by acceptance criteria.
 
 ### Changes requiring explicit owner approval
 
@@ -93,15 +94,20 @@ Stop and request owner direction before:
 - changing public contract semantics outside the active task;
 - introducing authentication, secrets, or external side effects;
 - changing package manager, primary language, runtime baseline, or repository layout substantially;
+- adding Rust, Zig, C, WebAssembly, FFI, Node-API, or native build tooling;
+- adding Clay as an executable dependency;
+- embedding, forking, or linking directly against Lightpanda;
 - changing the license or publishing packages;
 - performing broad refactors or dependency upgrades unrelated to the active task;
 - changing a documented open question into an implementation assumption.
 
-Record the proposed decision in `docs/DECISIONS.md` before proceeding.
+Record the proposed decision in `docs/DECISIONS.md` before proceeding. A native proposal must also satisfy a trigger and bounded-spike requirement from `docs/TECHNOLOGY_STRATEGY.md`.
 
 ## Engineering constraints
 
 - Continue using Node.js 20+ and TypeScript for IR-1.
+- Follow `D-012`: Clay is architectural grounding, not an IR-1 executable dependency.
+- Do not claim a native performance benefit without a representative benchmark or accepted product requirement.
 - Keep the core local-first and usable without a hosted service.
 - Do not add a universal design score.
 - Do not let AI-generated findings satisfy required human review.
@@ -176,6 +182,7 @@ Stop immediately when:
 - verification exposes a product ambiguity not resolved by the active plan;
 - a backend cannot honestly prove the assigned assertion;
 - a proposed shortcut would weaken evidence, validation, or authority boundaries;
+- a language or native-integration proposal lacks a documented trigger and owner-approved spike;
 - unrelated repository problems are discovered.
 
 Report unrelated problems without fixing them unless they block the active acceptance criteria.
@@ -190,8 +197,9 @@ Update the appropriate document when changing:
 - contract semantics;
 - browser authority or routing;
 - receipt or evidence meaning;
+- technology or language strategy;
 - accepted assumptions;
 - known risks;
 - owner approval requirements.
 
-Keep documentation lightweight. Do not create new process files when `MVP.md`, `PROJECT_STATE.md`, or `DECISIONS.md` can hold the information cleanly.
+Keep documentation lightweight. Do not create new process files when `MVP.md`, `PROJECT_STATE.md`, `DECISIONS.md`, or `TECHNOLOGY_STRATEGY.md` can hold the information cleanly.
