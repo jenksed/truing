@@ -17,8 +17,16 @@ None of those alone can answer the larger question:
 Truing is intended to connect:
 
 ```text
-intent → scenarios → observations → assertions → evidence → findings → reconciliation → receipt
+sources and repository
+  → generated contract proposal
+  → approved interface contract
+  → scenarios and observations
+  → assertions and evidence
+  → findings and reconciliation
+  → design receipt
 ```
+
+The contract is a readable, committed intermediate representation. Humans should normally review product decisions and contract diffs rather than hand-author every YAML field. LLMs may propose contracts, but deterministic verification runs against the approved contract without requiring a model.
 
 ## Current status
 
@@ -28,9 +36,12 @@ Truing is in **pre-alpha discovery and foundation work**. The first executable s
 - schema validation and normalization;
 - deterministic contract fingerprints;
 - a CLI command for checking contract files;
-- an example contract for a diagnostic event-detail interface.
+- a diagnostic event-detail example;
+- a Switchyard homepage contract derived from a completed mobile audit.
 
 The larger product definition is in [`docs/PRODUCT_DEFINITION.md`](docs/PRODUCT_DEFINITION.md).
+
+The first real validation case is documented in [`docs/VALIDATION_SWITCHYARD.md`](docs/VALIDATION_SWITCHYARD.md). It directly informs the revised [`docs/MVP.md`](docs/MVP.md) and architecture.
 
 ## Quick start
 
@@ -39,7 +50,7 @@ Requirements: Node.js 20 or newer.
 ```bash
 npm install
 npm run build
-npm run contract:check -- examples/event-detail/event-detail.truing.yml
+npm run contract:check -- examples
 npm test
 ```
 
@@ -50,9 +61,11 @@ packages/
   contract/   Contract schema, parsing, normalization, and fingerprints
   cli/        Initial `truing` command-line interface
 examples/
-  event-detail/  First representative interface contract
+  event-detail/      Dense diagnostic interface contract
+  switchyard-home/   Contract derived from a real responsive audit
 docs/
   PRODUCT_DEFINITION.md
+  VALIDATION_SWITCHYARD.md
   ARCHITECTURE.md
   MVP.md
 ```
@@ -79,6 +92,8 @@ It should compose existing browser, accessibility, component, design-system, and
 5. Every finding should be explainable and reproducible.
 6. Exceptions are governed, not silently suppressed.
 7. Existing tools are adapters, not competitors to rebuild.
+8. Generated contract proposals never approve themselves.
+9. Missing coverage is never reported as a pass.
 
 ## Contributing
 
