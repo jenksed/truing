@@ -1,0 +1,25 @@
+{
+  "name": "truing",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Repository-native interface contracts and evidence.",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace @truing/contract && npm run build --workspace @truing/cli",
+    "typecheck": "npm run typecheck --workspace @truing/contract && npm run build --workspace @truing/contract && npm run typecheck --workspace @truing/cli",
+    "test": "npm run test --workspace @truing/contract",
+    "check": "npm run typecheck && npm test",
+    "contract:check": "node packages/cli/dist/cli.js contract check"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.30",
+    "typescript": "5.8.3",
+    "vitest": "3.2.4"
+  }
+}

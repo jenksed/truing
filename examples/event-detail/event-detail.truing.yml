@@ -1,0 +1,127 @@
+version: truing.dev/v0alpha1
+kind: InterfaceContract
+
+metadata:
+  id: event-detail
+  title: Event detail
+  owner: product-support
+  risk: high
+  tags:
+    - diagnostics
+    - responsive
+
+target:
+  type: route
+  route: /events/:eventId
+  root: event-detail
+
+viewports:
+  phone:
+    width: 375
+    height: 812
+  tablet:
+    width: 768
+    height: 1024
+  desktop:
+    width: 1280
+    height: 900
+
+scenarios:
+  - id: delivered
+    fixture: fixtures/events/delivered.json
+    auth: support-agent
+    steps:
+      - goto: /events/evt_delivered
+      - wait_for: event-status
+
+  - id: failed-long-content
+    fixture: fixtures/events/failed-long-content.json
+    auth: support-agent
+    content_profile: hostile-long
+    steps:
+      - goto: /events/evt_failed_long
+      - wait_for: delivery-attempts
+
+regions:
+  event-status:
+    target: '[data-truing="event-status"]'
+    priority: primary
+  request-summary:
+    target: '[data-truing="request-summary"]'
+    priority: primary
+  routing-decision:
+    target: '[data-truing="routing-decision"]'
+    priority: primary
+  delivery-attempts:
+    target: '[data-truing="delivery-attempts"]'
+    priority: primary
+  secondary-metadata:
+    target: '[data-truing="secondary-metadata"]'
+    priority: secondary
+
+assertions:
+  - id: required-regions
+    use: regions.present
+    severity: critical
+    require:
+      - event-status
+      - request-summary
+      - routing-decision
+      - delivery-attempts
+
+  - id: reading-order
+    use: regions.order
+    severity: high
+    order:
+      - event-status
+      - request-summary
+      - routing-decision
+      - delivery-attempts
+      - secondary-metadata
+
+  - id: failure-visible
+    use: content.visible_without_interaction
+    severity: critical
+    target: delivery-failure-reason
+    scenarios:
+      - failed-long-content
+
+  - id: no-page-overflow
+    use: layout.no_horizontal_overflow
+    severity: high
+    scope: page
+    viewports:
+      - phone
+      - tablet
+      - desktop
+
+  - id: mobile-deliveries
+    use: responsive.transform
+    severity: high
+    region: delivery-attempts
+    when:
+      max_width: 639
+    expected:
+      pattern: labeled-record-list
+      preserve_labels: true
+
+human_review:
+  required:
+    - id: hierarchy
+      rubric: rubrics/information-hierarchy.md
+      scenarios:
+        - delivered
+        - failed-long-content
+      viewports:
+        - phone
+        - desktop
+
+release:
+  block_on:
+    statuses:
+      - fail
+      - blocked
+    severities:
+      - critical
+      - high
+  require_human_reviews: true
