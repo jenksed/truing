@@ -1,0 +1,304 @@
+version: truing.dev/v0alpha1
+kind: InterfaceContract
+
+metadata:
+  id: switchyard-home
+  title: Switchyard public homepage
+  owner: maintainers
+  risk: medium
+  tags:
+    - marketing-site
+    - responsive
+    - accessibility
+    - validation-case-study
+
+provenance:
+  derived_from:
+    - type: audit-report
+      title: Switchyard mobile audit final report
+      date: 2026-07-26
+  proposal_authority: model-assisted
+  approval_required: true
+
+target:
+  type: route
+  route: /
+  root: switchyard-home
+
+viewports:
+  phone-narrow:
+    width: 320
+    height: 568
+  phone:
+    width: 390
+    height: 844
+  phone-wide:
+    width: 430
+    height: 932
+  tablet:
+    width: 768
+    height: 1024
+  desktop:
+    width: 1024
+    height: 900
+  phone-landscape:
+    width: 812
+    height: 375
+
+probes:
+  breakpoint_neighborhoods:
+    - id: fragmentation-collapse
+      breakpoint: 360
+      offsets: [-1, 0, 1]
+    - id: receipt-columns
+      breakpoint: 640
+      offsets: [-1, 0, 1]
+    - id: desktop-header
+      breakpoint: 1024
+      offsets: [-1, 0, 1]
+
+content_profiles:
+  hostile-receipt-content:
+    endpoint_id:
+      generator: unbroken_alphanumeric
+      length: 128
+    body_hash:
+      generator: hexadecimal
+      length: 128
+    destination:
+      generator: repeated_words
+      length: 180
+  expanded-hero-copy:
+    text_expansion_factor: 2
+
+scenarios:
+  - id: default
+    steps:
+      - goto: /
+      - wait_for: hero
+
+  - id: mobile-menu-open
+    viewports:
+      - phone
+    steps:
+      - goto: /
+      - click: mobile-menu-toggle
+      - wait_for: mobile-menu
+
+  - id: hostile-receipt-content
+    content_profile: hostile-receipt-content
+    steps:
+      - goto: /
+      - wait_for: receipt
+
+  - id: doubled-layout-stress
+    content_profile: expanded-hero-copy
+    normative: false
+    purpose: detect-nowrap-and-clipping
+    steps:
+      - goto: /
+      - set_css_zoom: 2
+      - wait_for: hero
+
+regions:
+  hero:
+    target: '[data-truing="hero"]'
+    priority: primary
+  site-header:
+    target: '[data-truing="site-header"]'
+    priority: primary
+  mobile-menu:
+    target: '#mobile-menu'
+    priority: supporting
+  receipt:
+    target: '[data-truing="receipt"]'
+    priority: primary
+  receipt-endpoint-id:
+    target: '[data-truing="receipt-endpoint-id"]'
+    priority: supporting
+  receipt-body-hash:
+    target: '[data-truing="receipt-body-hash"]'
+    priority: supporting
+  receipt-destination:
+    target: '[data-truing="receipt-destination"]'
+    priority: supporting
+
+capabilities:
+  run-failure-demo:
+    required_at: all-supported-widths
+  open-github:
+    required_at: all-supported-widths
+  choose-theme:
+    required_at: all-supported-widths
+  primary-navigation:
+    required_at: all-supported-widths
+
+assertions:
+  - id: no-horizontal-page-overflow
+    use: layout.no_horizontal_overflow
+    severity: high
+    scope: page
+    viewports:
+      - phone-narrow
+      - phone
+      - phone-wide
+      - tablet
+      - desktop
+      - phone-landscape
+    include_probes: true
+
+  - id: breakpoint-transformations-stable
+    use: responsive.breakpoint_stability
+    severity: high
+    probes:
+      - fragmentation-collapse
+      - receipt-columns
+      - desktop-header
+    forbid:
+      - horizontal-page-overflow
+      - content-loss
+      - unlabeled-values
+
+  - id: header-capabilities-preserved
+    use: responsive.capability_preserved
+    severity: high
+    capabilities:
+      - run-failure-demo
+      - open-github
+      - choose-theme
+      - primary-navigation
+    transformation:
+      below: 1024
+      from: desktop-header-controls
+      to: mobile-navigation
+
+  - id: hero-copy-content-safe
+    use: content.wraps_without_clipping
+    severity: high
+    target: hero
+    scenarios:
+      - default
+      - doubled-layout-stress
+
+  - id: receipt-hostile-content-safe
+    use: content.not_clipped
+    severity: high
+    targets:
+      - receipt-endpoint-id
+      - receipt-body-hash
+      - receipt-destination
+    scenarios:
+      - hostile-receipt-content
+
+  - id: receipt-attempts-do-not-overlap
+    use: layout.no_overlap
+    severity: high
+    scope: receipt
+    scenarios:
+      - hostile-receipt-content
+
+  - id: critical-controls-meet-target-size
+    use: accessibility.minimum_target_size
+    severity: high
+    minimum:
+      width: 44
+      height: 44
+    targets:
+      - mobile-menu-toggle
+      - hero-primary-action
+      - hero-secondary-action
+      - quickstart-link
+
+  - id: all-interactive-controls-named
+    use: accessibility.accessible_name
+    severity: high
+    scope: interactive
+
+  - id: mobile-menu-disclosure-behavior
+    use: interaction.disclosure
+    severity: high
+    trigger: mobile-menu-toggle
+    controlled_region: mobile-menu
+    scenarios:
+      - mobile-menu-open
+    require:
+      aria_controls: true
+      expanded_state_updates: true
+      escape_closes: true
+
+  - id: reduced-motion-respected
+    use: accessibility.reduced_motion
+    severity: high
+    require:
+      smooth_scroll_disabled: true
+      nonessential_animation_disabled: true
+
+coverage:
+  required:
+    browsers:
+      - chromium
+    analyzers:
+      - dom
+      - geometry
+      - interaction
+  advisory:
+    browsers:
+      - webkit
+      - android-chrome-real-device
+    analyzers:
+      - axe-core
+      - lighthouse
+  not_run_is_not_pass: true
+
+exceptions:
+  - id: skip-link-target-height
+    assertion: critical-controls-meet-target-size
+    scope: skip-to-content
+    observed:
+      width: 142
+      height: 43
+    rationale: Visible only on keyboard focus and spatially isolated.
+    status: proposed
+    approval_required: true
+
+  - id: compact-mobile-navigation-targets
+    assertion: critical-controls-meet-target-size
+    scope: mobile-navigation-links
+    observed_height: 35
+    rationale: Text links use sufficient spacing under the configured target-spacing policy.
+    status: proposed
+    approval_required: true
+
+human_review:
+  required:
+    - id: breakpoint-density
+      rubric: rubrics/responsive-density.md
+      scenarios:
+        - default
+      viewports:
+        - phone-narrow
+        - phone
+        - tablet
+        - desktop
+
+    - id: target-size-exceptions
+      rubric: rubrics/target-spacing-exceptions.md
+      scenarios:
+        - mobile-menu-open
+      viewports:
+        - phone
+
+release:
+  block_on:
+    statuses:
+      - fail
+      - blocked
+    severities:
+      - critical
+      - high
+  require_human_reviews: true
+  require_reconciliation_for:
+    - fail
+    - changed
+    - not_run
+    - accepted_exception
